@@ -1,0 +1,24 @@
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include <util/delay.h>
+
+volatile unsigned char sw = 0 ;
+ISR(INT4_vect){
+	sw = !sw;
+}
+
+int main(void)
+{
+    DDRF = 0xff; // PORTB를 출력으로 설정
+	//DDRE = 0x00;
+	PORTE = 1<<PE4;
+    EIMSK = 0b00010000; // INT4만 인터럽트를 허용
+	EICRB = 0b00000010; // INT4를 하강 모서리에서 반응
+	SREG = 0b10000000; // Global Interrupt bit set
+	
+    while (1) 
+    {
+		if(sw){PORTF = 0xff;}
+		else {PORTF = 0x00;}
+    }
+}
