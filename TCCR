@@ -1,0 +1,38 @@
+#define F_CPU 16000000UL
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include <util/delay.h>
+volatile unsigned char a = 0 ;
+unsigned int b = 0;
+SIGNAL(SIG_OVERFLOW0){
+	b++;
+	if(b==1000){
+		if(a==0) a=0xff;
+		else a=0;
+		b=0;
+	}
+}
+/*
+ISR(TIMER0_OVF_vect){
+	b++;
+	if(b==10000){
+		if(a==0) a=0xff;
+		else a=0;
+		b=0;
+	}
+}*/
+int main(void)
+{
+    DDRB = 0xff; 
+	TCCR0 = 0x01; // 분주 사용 X
+	TIMSK = 0x01; // Overflow Intterupt 사용
+	TCNT0 = 0x00; // 0부터 count
+	sei();
+	
+    while (1) 
+    {
+		PORTB = a;
+    }
+	return 0;
+}
+
