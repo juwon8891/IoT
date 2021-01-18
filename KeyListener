@@ -1,0 +1,66 @@
+package Package;
+
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import java.awt.event.*;
+import javax.swing.*;
+
+public class MykeyListener extends JFrame implements KeyListener{
+	private JPanel panel1;
+	private JTextField field;
+	private JTextArea area;
+	
+	public MykeyListener() {
+		panel1 = new JPanel(new GridLayout(0, 2));
+		panel1.add(new JLabel("문자를 입력하시오."));
+		field = new JTextField(10);
+		panel1.add(field);
+		area = new JTextArea(3, 30);
+		
+		this.add(panel1, BorderLayout.NORTH);
+		this.add(area, BorderLayout.CENTER);
+		field.addKeyListener(this);
+		this.getDefaultCloseOperation();
+		this.setTitle("KeyEvent");
+		this.setSize(400, 200);
+		this.setVisible(true);
+	}
+	public static void main(String[] args) {
+		new MykeyListener();
+
+	}
+
+	private void display(KeyEvent e, String s) {
+		char c = e.getKeyChar();
+		int KeyCode = e.getKeyCode();
+		String modifiers = "Alt: " + e.isAltDown() +
+				"Ctrl: " + e.isControlDown() + "Shift: " +
+				e.isShiftDown();
+		
+		area.append("" + s + "문자 " + c + "(코드: " + KeyCode +
+				") " + modifiers + "\n");
+		
+	}
+	@Override
+	public void keyPressed(KeyEvent e) {
+		// Key를 눌러졌을 때. // 대개 이것만 사용한다.
+		display(e, "Key keyPressed     ");
+		
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		// Key에서 손을 떼었을 때.
+		display(e, "Key keyReleased     ");
+		
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+		// 사용자가 글자를 입력하였을 때.
+		display(e, "Key keyTyped       ");
+		
+		
+	}
+
+}
