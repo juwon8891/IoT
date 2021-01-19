@@ -1,0 +1,7 @@
+import telepot
+
+token = "1594453552:AAE0mDNJThoL2mAgpD6euvH1GWqJslubm_c"
+mc = "1592839063"
+bot = telepot.Bot(token)
+
+bot.sendMessage(mc, "2021.01.19.12:49")
