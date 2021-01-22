@@ -1,0 +1,73 @@
+package Package;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.event.*;
+import javax.swing.*;
+
+public class gui_exam extends JFrame{
+	JTextPane editarea;
+	JButton btn_edit, btn_copy, btn_cut, btn_paste, btn_exit;
+	JPanel panel, panel2;
+	
+	public gui_exam(){
+		EditWindows();
+		this.setTitle("편집기");
+		this.setSize(500, 500);
+		this.setVisible(true);
+	}
+	
+	void EditWindows() {
+		panel = new JPanel(); panel2 = new JPanel();
+		btn_edit = new JButton("편집"); btn_copy = new JButton("복사");
+		btn_cut = new JButton("잘라내기"); btn_paste = new JButton("붙여넣기");
+		btn_exit = new JButton("종료");
+		
+		editarea = new JTextPane();
+		editarea.setPreferredSize(new Dimension(500, 500));
+		editarea.setEditable(false);
+		editarea.setSelectionColor(Color.yellow);
+		editarea.setBackground(Color.white);
+		editarea.setSelectedTextColor(Color.red);
+		
+		panel.add(btn_edit); panel.add(btn_copy);
+		panel.add(btn_cut); panel.add(btn_paste); panel.add(btn_exit);
+		panel2.add(editarea);
+		
+		this.add("North", panel);
+		this.add("Center", panel2);
+		btn_edit.addActionListener(new MyListener());
+		btn_copy.addActionListener(new MyListener());
+		btn_cut.addActionListener(new MyListener());
+		btn_paste.addActionListener(new MyListener());
+		btn_exit.addActionListener(new MyListener());
+	}
+	class MyListener implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if(e.getSource()==btn_edit) {
+				editarea.setEditable(true);
+				btn_edit.setBackground(Color.cyan);
+				editarea.requestFocus();
+			}
+			else if(e.getSource()==btn_copy) {
+				editarea.copy();
+			}
+			else if(e.getSource()==btn_cut) {
+				editarea.cut();
+			}
+			else if(e.getSource()==btn_paste) {
+				editarea.paste();
+			}
+			else if(e.getSource()==btn_exit) {
+				System.exit(0);
+			}
+		}
+		
+	}
+	public static void main(String[] args) {
+		new gui_exam();
+	}
+
+}
