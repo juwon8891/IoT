@@ -1,0 +1,127 @@
+package Package;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+
+public class Notepad extends JFrame{
+	SimpleAttributeSet saset;
+	JTextPane editarea;
+	JButton btn_edit, btn_copy, btn_cut, btn_paste, btn_exit;
+	JPanel panel, panel2, panel3, panel4, panel5;
+	JComboBox combo;
+	ButtonGroup group = new ButtonGroup();
+	JRadioButton red, blue, green;
+	public Notepad(){
+		EditWindows();
+		this.setTitle("편집기");
+		this.setSize(500, 500);
+		this.setVisible(true);
+	}
+	
+	void EditWindows() {
+		panel = new JPanel(); panel2 = new JPanel(); panel3 = new JPanel(); 
+		panel4 = new JPanel(); panel5 = new JPanel();
+		btn_edit = new JButton("편집"); btn_copy = new JButton("복사");
+		btn_cut = new JButton("잘라내기"); btn_paste = new JButton("붙여넣기");
+		btn_exit = new JButton("종료");
+		red = new JRadioButton("red"); blue = new JRadioButton("blue"); green = new JRadioButton("green");
+		group.add(red); group.add(blue); group.add(green);
+		String size [] = { "5", "10", "15", "20", "25", "30" };
+		combo = new JComboBox(size);
+		Border border = BorderFactory.createTitledBorder("글자크기");
+		Border border1 = BorderFactory.createTitledBorder("글자색상");
+		editarea = new JTextPane();
+		editarea.setPreferredSize(new Dimension(480, 480));
+		editarea.setEditable(false);
+		editarea.setSelectionColor(Color.yellow);
+		editarea.setBackground(Color.white);
+		editarea.setSelectedTextColor(Color.red);
+		panel.setLayout(new FlowLayout());
+		panel.add(btn_edit); panel.add(btn_copy);
+		panel.add(btn_cut); panel.add(btn_paste); panel.add(btn_exit);
+		panel2.add(editarea);
+		panel3.add(red); panel3.add(blue); panel3.add(green);
+		panel5.setLayout(new GridLayout(0, 2));
+		panel3.setBorder(border1);
+		panel4.add(combo); 
+		panel4.setBorder(border);
+		panel5.add(panel4); panel5.add(panel3); 
+		//combo.setBounds(0, 450, 100, 10);
+		this.add("North", panel);
+		this.add(panel2);
+		
+		//panel3.add(combo); 
+		this.add("South", panel5);
+		
+		btn_edit.addActionListener(new MyListener());
+		btn_copy.addActionListener(new MyListener());
+		btn_cut.addActionListener(new MyListener());
+		btn_paste.addActionListener(new MyListener());
+		btn_exit.addActionListener(new MyListener());
+		
+		red.addActionListener(new MyEvent());
+		blue.addActionListener(new MyEvent());
+		green.addActionListener(new MyEvent());
+		combo.addItemListener(new MyEvent());
+	}
+	
+		class MyListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if(e.getSource()==btn_edit) {
+				editarea.setEditable(true);
+				btn_edit.setBackground(Color.cyan);
+				editarea.requestFocus();
+			}
+			else if(e.getSource()==btn_copy) {
+				editarea.copy();
+			}
+			else if(e.getSource()==btn_cut) {
+				editarea.cut();
+			}
+			else if(e.getSource()==btn_paste) {
+				editarea.paste();
+			}
+			else if(e.getSource()==btn_exit) {
+				System.exit(0);
+			}
+		}
+	}
+		class MyEvent implements ActionListener, ItemListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			saset = new SimpleAttributeSet();
+			if(e.getSource() == red)
+				StyleConstants.setForeground( saset, Color.RED);
+			if(e.getSource() == blue)
+				StyleConstants.setForeground( saset, Color.blue);
+			if(e.getSource() == green)
+				StyleConstants.setForeground( saset, Color.green);
+			int size = Integer.parseInt((String)combo.getSelectedItem());
+			StyleConstants.setFontSize( saset,  size);
+			editarea.setCharacterAttributes(saset, true);
+			editarea.requestFocus();
+		}
+		@Override
+		public void itemStateChanged(ItemEvent e) {
+			saset = new SimpleAttributeSet();
+			editarea.getSelectedTextColor();
+			int size = Integer.parseInt((String)combo.getSelectedItem());
+			StyleConstants.setFontSize( saset, size );
+			
+			editarea.setCharacterAttributes(saset, true);
+			editarea.requestFocus();
+		}
+	}
+	public static void main(String[] args) {
+		new Notepad();
+	}
+
+}
