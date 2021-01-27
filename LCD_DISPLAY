@@ -43,7 +43,7 @@ void	LCD_data_write(unsigned char data)
 	gen_E_strobe();
 }
 
-void	LCD_init(void)
+void LCD_init(void)
 {
 	DDRD |= 1<<RS | 1<<RW | 1<<E;	// RS, RW, E 핀을 출력핀으로 설정
 	PORTD &= ~(1<<RS | 1<<E | 1<<RW); 	// 초기에 RS, E, RW <- 0
@@ -53,25 +53,6 @@ void	LCD_init(void)
 	LCD_command(0x01);
 	LCD_command(0x06);
 	LCD_command(0x0C);
-}
-void set_cursor(unsigned int row, unsigned int col)
-{
-	if(row == 0)
-	row=0x80; // 첫번째 줄
-	else if (row == 1)
-	row=0xc0; // 두번째 줄
-	col+=row;
-	LCD_command(col);
-}
-
-// 함수 정의 : row, col 위치에서 문자열 str 을 LCD에 출력시킨다.
-void LCD_str_write(unsigned int row, unsigned int col, char *str)
-{
-	int i=0;
-	set_cursor(row, col);
-	while(str[i] != '\0') // 널값 만날 때까지
-	LCD_data_write(*str++); // 데이터 주소를 쓴다.
-	i++; //널값 만나서 다음 줄로 이동.
 }
 void set_cursor(unsigned int row, unsigned int col)
 {
