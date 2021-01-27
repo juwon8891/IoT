@@ -94,7 +94,6 @@ void LCD_str_write(unsigned int row, unsigned int col, char *str)
 }
 
 char *string[] = {" ATmega128", " Microcontroller"};
-char *blank[] = {" "};
 int	main(void)
 {
 	int i=0;
@@ -103,9 +102,7 @@ int	main(void)
 	while(1){
 		for(i=0; i<16; i++){ //16번 반복동작
 			LCD_str_write(0, i, string[0]); //첫번째 줄 출력
-			LCD_str_write(0, i, blank[0]); //뒤로 공백문자 채우기
 			LCD_str_write(1, i, string[1]); // 두번째 줄 출력
-			LCD_str_write(1, i, blank[0]); //뒤로 공백문자 채우기
 			_delay_ms(100); //딜레이 0.1초로 반복
 		}
 	}
