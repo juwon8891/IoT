@@ -1,0 +1,57 @@
+package Pacakage;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.Normalizer.Form;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+
+import java.awt.Toolkit;
+import java.sql.PreparedStatement;
+
+public class DB_test2 extends JFrame{
+	static PreparedStatement pstmt ;
+	static ResultSet rs;
+	static DB_con DB; 
+	public DB_test2() throws SQLException {
+		new DB_Form();
+		qry();
+	}
+	void qry() throws SQLException {
+		int i=0;
+		DB.open();
+		String sql = "SELECT * FROM customer";
+		try {
+			pstmt = DB.conn.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+			rs.next();
+			DB_Form.table.setAutoCreateRowSorter(true);
+			do {
+				/*
+				 * table.setValueAt(rs.getString("ID"), i,0);
+				 * table.setValueAt(rs.getString("cName"), i,1);
+				 * table.setValueAt(rs.getString("Age"), i,2);
+				 * table.setValueAt(rs.getString("job"), i,3);
+				 */
+				i++;
+				String cName = rs.getString("cName");
+				String Age = rs.getString("Age");
+				String job = rs.getString("job");
+				Object[] rowData = {cName, Age, job};
+				DB_Form.dtm.addRow(rowData);
+			}while(rs.next());
+		}catch(SQLException e) {
+			e.printStackTrace();
+			System.out.println("실패");
+		}
+		DB.close();		
+	}
+	
+	public static void main(String[] args) throws SQLException {
+		new DB_test2();
+	}
+}
+
