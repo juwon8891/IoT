@@ -1,0 +1,199 @@
+package Pacakage;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
+public class DB_Form extends JFrame implements ActionListener{
+	InputForms form;
+	String [] heading = {"이름", "나이", "직업"};
+	Object [] newrows;
+	Object [][] rowdata= {{"홍길동","13","학생"},{"김유신","15","화랑"},{"김덕만","16","공주"}};
+	static DefaultTableModel dtm;
+	JLabel label = new JLabel("안녕 테이블~^^*", JLabel.CENTER);
+	public static JTable table;
+	JScrollPane scroll= new JScrollPane(table);
+	JButton erase = new JButton("삭제");
+	JButton exit = new JButton("종료");
+	JScrollPane panel;
+	JPanel panel2 = new JPanel();
+	JPanel panel3 = new JPanel();
+	Dimension dimen, dimen1;
+	int xpos, ypos;
+	
+	public DB_Form() {
+		dtm = new DefaultTableModel(rowdata,heading);
+		table = new JTable(dtm);
+		panel = new JScrollPane(table);
+		panel2.add(erase); panel2.add(exit);
+		table.setPreferredScrollableViewportSize(new Dimension(200,200));
+		table.setFillsViewportHeight(true);
+		form = new InputForms();
+		panel3.add(panel2);
+		panel3.add(form.panel2);
+		panel3.setLayout(new GridLayout(0, 2));
+		this.add("West", panel3);
+		this.add("North", label);
+		this.add("Center", panel);
+		this.add("South", panel2);
+		this.setVisible(true);
+		this.setTitle("Table테스트");
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setSize(700, 720);
+		table.addMouseListener(new myevent());
+		erase.addActionListener(this);
+		exit.addActionListener(this);
+		dimen = Toolkit.getDefaultToolkit().getScreenSize();
+		dimen1=this.getSize();
+		xpos = (int) (dimen.getWidth() / 2 - dimen1.getWidth() / 2);
+		ypos = (int) (dimen.getHeight() / 2 - dimen1.getHeight() / 2);
+		this.setLocation(xpos, ypos);
+		form.summit.addActionListener(this);
+		form.cancel.addActionListener(this);
+	}
+	public static void main(String[] args) {
+		//new DB_Form();
+	}
+	public class myevent extends MouseAdapter {
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			int srow = table.getSelectedRow();
+			Object name = table.getValueAt(srow, 0);
+			Object age = table.getValueAt(srow, 1);
+			Object job = table.getValueAt(srow, 2);
+			label.setText("이름:" + name + ", 나이:" + age + ", 직업:" + job);
+			form.text_name.setText((String)name);
+			form.text_age.setText((String)age);
+			form.text_job.setText((String)job);
+		}
+	}
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		Object o = e.getSource();
+		Object name, age, job;
+	
+		if(o==form.summit && table.getSelectedRow() < 0){
+				name = form.text_name.getText();
+				age = form.text_age.getText();
+				job = form.text_job.getText();
+				int name_l = form.text_name.getText().length();
+				int age_l = form.text_age.getText().length();
+				int job_l = form.text_job.getText().length();
+				if(name_l == 0) {
+					JOptionPane.showMessageDialog(null, "이름을 입력하세요");
+					form.text_name.requestFocus();
+				}
+				else if(age_l == 0) {
+					JOptionPane.showMessageDialog(null, "나이를 입력하세요");
+					form.text_age.requestFocus();
+				}
+				else if(job_l == 0) {
+					JOptionPane.showMessageDialog(null, "직업을 입력하세요");
+					form.text_job.requestFocus();
+				}
+				else {
+				form.setdata(name, age, job);
+				dtm.addRow(form.getdata());
+				}
+		}
+		if(o==form.cancel){
+			this.setVisible(true);	
+		}
+		if(o == erase) {
+			String delName = JOptionPane.showInputDialog(null, "삭제할 이름:");
+			if(delName == null) return;
+			if(delName.length() ==0) {
+				JOptionPane.showMessageDialog(null, "삭제할이름 입력!!");
+				return;
+			}
+			for(int i=0; i<table.getRowCount(); i++) {
+				if(delName.equals(table.getValueAt(i, 0))) {
+					dtm.removeRow(i);
+				}
+			}
+		}
+		
+		if((o==form.summit && table.getSelectedRow() > 0))
+			 {
+				int srow = table.getSelectedRow();
+				name = form.text_name.getText();
+				age = form.text_age.getText();
+				job = form.text_job.getText();
+				int age_l = form.text_age.getText().length();
+				int name_l = form.text_name.getText().length();
+				int job_l = form.text_job.getText().length();
+				if(age_l == 0) {
+					JOptionPane.showMessageDialog(null, "나이를 입력하세요");
+					form.text_age.requestFocus();
+				}
+				else if(job_l == 0) {
+					JOptionPane.showMessageDialog(null, "직업을 입력하세요");
+					form.text_job.requestFocus();
+				}
+				else if(name_l == 0) {
+					JOptionPane.showMessageDialog(null, "이름을 입력하세요");
+					form.text_name.requestFocus();
+				}
+				else {
+				dtm.setValueAt(name, srow,  0);
+				dtm.setValueAt(age, srow, 1);
+				dtm.setValueAt(job, srow, 2);
+				}
+			}
+		if(o == exit) {
+			System.exit(0);
+		}
+		
+	}
+}
+
+class InputForms{
+	JTableNO3 jt;
+	JTextField text_name, text_age, text_job;
+	JLabel label_name, label_age, label_job;
+	JButton summit, cancel;
+	JPanel panel, panel2;
+	Object [] newrows;
+	Dimension dimen, dimen1;
+	int xpos, ypos;
+public InputForms() {
+	text_name = new JTextField();
+	text_age = new JTextField();
+	text_job = new JTextField();
+	label_name = new JLabel("이름");
+	label_age = new JLabel("나이");
+	label_job = new JLabel("직업");
+	summit = new JButton("입력");
+	cancel = new JButton("취소");
+	panel = new JPanel(); panel2 = new JPanel();
+	panel.setLayout(new GridLayout(4,2));
+	panel.add(label_name); panel.add(text_name); 
+	panel.add(label_age); panel.add(text_age); 
+	panel.add(label_job); panel.add(text_job); 
+	panel.add(summit); panel.add(cancel);
+	panel.setSize(700, 700);
+	panel2.add(panel);
+	}
+	public void setdata(Object name, Object age, Object job){
+		Object [] newrows = {name, age, job};
+		this.newrows = newrows;
+		
+	}
+	public Object[] getdata(){
+		return this.newrows;
+	}
+}
