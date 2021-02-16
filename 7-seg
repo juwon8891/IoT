@@ -1,0 +1,35 @@
+#define F_CPU 16000000UL
+#include <avr/io.h>
+#include <util/delay.h>
+#include <avr/interrupt.h>
+unsigned char digit[] = {0xC0, 0xF9, 0xA4, 0xB0, 0x99, 0x92, 0x83, 0xF8, 0x80, 0x98};
+int number;
+void display_7seglend(unsigned char *led, unsigned int number){
+	PORTA = ~led[number];
+}
+int main(void){
+	DDRA = 0xFF; DDRC=0xff;
+	number=2345;
+	while (1)
+	{
+		int four = number % 10000 / 1000;
+		int three = number % 1000 / 100;
+		int two = number % 100 / 10;
+		int one = number % 10;
+		if(PIND &= 1<<PD6){
+			number++;
+			_delay_ms(100);
+		}
+		if(PIND &= 1<<PD7){
+			number--;
+			_delay_ms(100);
+		}
+		int num[] = {four, three, two, one};
+		for(int i=0; i<4; i++){
+			PORTC = ~(1<<i);
+			display_7seglend(digit, num[i]);
+			_delay_ms(10);
+		}
+	}
+	return 0;
+}
