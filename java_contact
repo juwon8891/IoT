@@ -1,0 +1,578 @@
+package Pacakage;
+
+import java.awt.EventQueue;
+
+import javax.swing.JFrame;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+import java.awt.Font;
+import javax.swing.JTabbedPane;
+import java.awt.Color;
+import java.awt.Dimension;
+
+import javax.swing.JRadioButton;
+import java.awt.SystemColor;
+import java.awt.Toolkit;
+
+import javax.swing.JPanel;
+import javax.swing.JComboBox;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JScrollPane;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.beans.Statement;
+import java.io.StringReader;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.awt.event.ActionEvent;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.JRadioButtonMenuItem;
+
+public class ex2 {
+
+	private JFrame frame;
+	private JTextField txt_name;
+	private JTextField txt_age;
+	private JTextField txt_addr;
+	private JTextField txt_num1;
+	private JTextField txt_num2;
+	private JTextField txt_num3;
+	private JTextField txt_email1;
+	private JTextField txt_email2;
+	private static JTextField txt_look;
+	private static JTable table;
+	private static DefaultTableModel dtm;
+	static PreparedStatement pstmt ;
+	static Statement stmt;
+	static ResultSet rs;
+	static DB_con DB; 
+	static String gender=null;
+	static JComboBox combo_look;
+	static JComboBox combo_mail;
+	String phone;
+	String email;
+	String ID;
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					ex2 window = new ex2();
+					window.frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	static void qry() throws SQLException {
+		int i=0;
+		DB.open();
+		String sql = "SELECT * FROM contact";
+		try {
+			pstmt = DB.conn.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+			rs.next();
+			table.setAutoCreateRowSorter(true);
+			dtm.setRowCount(0);
+			do {
+				String Name = rs.getString(1);
+				String age = rs.getString(2);
+				String gender = rs.getString(3);
+				String addr = rs.getString(4);
+				String phone = rs.getString(5);
+				String email = rs.getString(6);
+				int idx = rs.getInt(7);
+				Object[] rowData = {Name, age, gender, addr, phone, email, idx};
+				dtm.addRow(rowData);
+			}while(rs.next());
+		}catch(SQLException e) {
+			e.printStackTrace();
+			System.out.println("실패");
+		}
+		DB.close();		
+	}
+	
+	
+	static void sqry() throws SQLException {
+		int i=0;
+		DB.open();
+		//String sql = "SELECT * FROM contact WHERE ?= ?";
+		//SELECT * FROM contact where name = "김두리"
+		try {
+			dtm.setRowCount(0);
+			String look = (String) combo_look.getSelectedItem();
+			String look2 = txt_look.getText();
+			String sql = "SELECT * FROM contact WHERE " + look + "= ?";
+			pstmt = DB.conn.prepareStatement(sql);
+			pstmt.setString(1, look2);
+			System.out.println(pstmt);
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				table.setAutoCreateRowSorter(true);
+			do {
+				String Name = rs.getString(1);
+				String age = rs.getString(2);
+				String gender = rs.getString(3);
+				String addr = rs.getString(4);
+				String phone = rs.getString(5);
+				String email = rs.getString(6);
+				int idx = rs.getInt(7);
+				Object[] rowData = {Name, age, gender, addr, phone, email, idx};
+				dtm.addRow(rowData);
+			}while(rs.next());
+			System.out.println("검색에 성공했습니다.");
+			txt_look.setText("");
+			}
+			else {
+				System.out.println("결과 값이 없습니다.");
+			}
+		}catch(SQLException e) {
+			e.printStackTrace();
+			System.out.println("실패");
+		}
+		DB.close();		
+	}
+	public void regist() throws SQLException {
+		DB.open();
+		int result = 0;
+		String query = "INSERT INTO contact(name, age, gender, addr, phone, email) VALUES (?, ?, ?, ?, ?, ?)";
+		try {
+			pstmt = DB.conn.prepareStatement(query);
+			pstmt.setString(1, txt_name.getText());
+			pstmt.setString(2, txt_age.getText());
+			pstmt.setString(3, gender.toString());
+			pstmt.setString(4, txt_addr.getText());
+			pstmt.setString(5, phone.toString());
+			pstmt.setString(6, email.toString());
+			int Result= pstmt.executeUpdate();
+			System.out.println(Result + "개의 열을 추가하였습니다.");
+			System.out.println(pstmt);
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}finally {
+			DB.close();
+		}
+	}
+	public void update() throws SQLException {
+		DB.open();
+		int result = 0;
+		String query = "UPDATE contact SET name=?, age=?, gender=?, addr=?, phone=?, email=? WHERE (idx = ?)";
+		try {
+			pstmt = DB.conn.prepareStatement(query);
+			pstmt.setString(1, (String)dtm.getValueAt(table.getSelectedRow(), 0));
+			pstmt.setString(2, (String)dtm.getValueAt(table.getSelectedRow(), 1));
+			pstmt.setString(3, (String)dtm.getValueAt(table.getSelectedRow(), 2));
+			pstmt.setString(4, (String)dtm.getValueAt(table.getSelectedRow(), 3));
+			pstmt.setString(5, (String)dtm.getValueAt(table.getSelectedRow(), 4));
+			pstmt.setString(6, (String)dtm.getValueAt(table.getSelectedRow(), 5));
+			ID = String.valueOf(dtm.getValueAt(table.getSelectedRow(), 6));
+			//ID = dtm.getValueAt(table.getSelectedRow(), 6);
+			pstmt.setString(7, ID);
+			int Result= pstmt.executeUpdate();
+			System.out.println(Result + "개의 열을 수정하였습니다.");
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}finally {
+			DB.close();
+		}
+	}
+	public void delete() throws SQLException {
+		DB.open();
+		int result = 0;
+		String query = "DELETE FROM contact WHERE (idx = ?);";
+		try {
+			pstmt = DB.conn.prepareStatement(query);
+			ID = String.valueOf(dtm.getValueAt(table.getSelectedRow(), 6));
+			pstmt.setString(1, ID);
+			int Result= pstmt.executeUpdate();
+			System.out.println(Result + "개의 열을 삭제하였습니다.");
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}finally {
+			DB.close();
+		}
+	}
+	public void init() {
+	txt_name.setText("");
+	txt_age.setText("");
+	txt_addr.setText("");
+	txt_num1.setText("");
+	txt_num2.setText("");
+	txt_num3.setText("");
+	txt_email1.setText("");
+	txt_email2.setText("");
+	}
+
+	/**
+	 * Create the application.
+	 */
+	public ex2() {
+
+		initialize();
+	}
+
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize() {
+		frame = new JFrame();
+		frame.setBounds(100, 100, 599, 703);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().setLayout(null);
+		
+		txt_name = new JTextField();
+		txt_name.setBounds(161, 80, 81, 19);
+		frame.getContentPane().add(txt_name);
+		txt_name.setColumns(10);
+		
+		JLabel lblNewLabel_2 = new JLabel("\uB098 \uC774");
+		lblNewLabel_2.setFont(new Font("맑은 고딕", Font.BOLD, 14));
+		lblNewLabel_2.setBounds(254, 80, 57, 15);
+		frame.getContentPane().add(lblNewLabel_2);
+		
+		JButton btn_exit = new JButton("\uC885\uB8CC");
+		btn_exit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+		});
+		btn_exit.setFont(new Font("맑은 고딕", Font.BOLD, 20));
+		btn_exit.setBackground(Color.MAGENTA);
+		btn_exit.setBounds(440, 599, 119, 41);
+		frame.getContentPane().add(btn_exit);
+		
+		JLabel lblNewLabel_2_1 = new JLabel("\uC774 \uB984");
+		lblNewLabel_2_1.setFont(new Font("맑은 고딕", Font.BOLD, 14));
+		lblNewLabel_2_1.setBounds(93, 82, 57, 15);
+		frame.getContentPane().add(lblNewLabel_2_1);
+		
+		JLabel lblNewLabel_2_2 = new JLabel("\uC131 \uBCC4");
+		lblNewLabel_2_2.setFont(new Font("맑은 고딕", Font.BOLD, 14));
+		lblNewLabel_2_2.setBounds(357, 80, 57, 15);
+		frame.getContentPane().add(lblNewLabel_2_2);
+		
+		JLabel lblNewLabel_2_1_1 = new JLabel("\uC8FC \uC18C");
+		lblNewLabel_2_1_1.setFont(new Font("맑은 고딕", Font.BOLD, 14));
+		lblNewLabel_2_1_1.setBounds(93, 117, 57, 15);
+		frame.getContentPane().add(lblNewLabel_2_1_1);
+		
+		txt_age = new JTextField();
+		txt_age.setColumns(10);
+		txt_age.setBounds(295, 79, 50, 19);
+		frame.getContentPane().add(txt_age);
+		
+		JRadioButton radiobtn_male = new JRadioButton("Male");
+		radiobtn_male.setBounds(397, 78, 57, 23);
+		frame.getContentPane().add(radiobtn_male);
+		
+		JRadioButton radiobtn_female = new JRadioButton("Female");
+		radiobtn_female.setBounds(458, 78, 80, 23);
+		frame.getContentPane().add(radiobtn_female);
+		
+		txt_addr = new JTextField();
+		txt_addr.setColumns(10);
+		txt_addr.setBounds(161, 116, 361, 19);
+		frame.getContentPane().add(txt_addr);
+		
+		txt_num1 = new JTextField();
+		txt_num1.setColumns(10);
+		txt_num1.setBounds(161, 155, 81, 19);
+		frame.getContentPane().add(txt_num1);
+		
+		txt_num2 = new JTextField();
+		txt_num2.setColumns(10);
+		txt_num2.setBounds(264, 155, 81, 19);
+		frame.getContentPane().add(txt_num2);
+		
+		txt_num3 = new JTextField();
+		txt_num3.setColumns(10);
+		txt_num3.setBounds(373, 154, 81, 19);
+		frame.getContentPane().add(txt_num3);
+		
+		JLabel lblNewLabel_2_1_1_1 = new JLabel("\uC5F0\uB77D\uCC98");
+		lblNewLabel_2_1_1_1.setFont(new Font("맑은 고딕", Font.BOLD, 14));
+		lblNewLabel_2_1_1_1.setBounds(93, 157, 57, 15);
+		frame.getContentPane().add(lblNewLabel_2_1_1_1);
+		
+		JLabel lblNewLabel = new JLabel("-");
+		lblNewLabel.setFont(new Font("나눔고딕", Font.PLAIN, 17));
+		lblNewLabel.setBounds(250, 153, 15, 19);
+		frame.getContentPane().add(lblNewLabel);
+		
+		JLabel lblNewLabel_3 = new JLabel("-");
+		lblNewLabel_3.setFont(new Font("나눔고딕", Font.PLAIN, 17));
+		lblNewLabel_3.setBounds(356, 153, 15, 19);
+		frame.getContentPane().add(lblNewLabel_3);
+		
+		txt_email1 = new JTextField();
+		txt_email1.setColumns(10);
+		txt_email1.setBounds(161, 194, 81, 19);
+		frame.getContentPane().add(txt_email1);
+		
+		txt_email2 = new JTextField();
+		txt_email2.setColumns(10);
+		txt_email2.setBounds(276, 194, 95, 19);
+		frame.getContentPane().add(txt_email2);
+		
+		JLabel lblNewLabel_4 = new JLabel("@");
+		lblNewLabel_4.setFont(new Font("나눔고딕", Font.BOLD, 17));
+		lblNewLabel_4.setBounds(254, 192, 21, 19);
+		frame.getContentPane().add(lblNewLabel_4);
+		
+		JLabel lblNewLabel_2_1_1_1_1 = new JLabel("\uC774\uBA54\uC77C");
+		lblNewLabel_2_1_1_1_1.setFont(new Font("맑은 고딕", Font.BOLD, 14));
+		lblNewLabel_2_1_1_1_1.setBounds(93, 196, 57, 15);
+		frame.getContentPane().add(lblNewLabel_2_1_1_1_1);
+		
+		JPanel panel = new JPanel();
+		panel.setBackground(Color.BLACK);
+		panel.setBounds(33, 10, 526, 41);
+		frame.getContentPane().add(panel);
+		
+		JLabel lblNewLabel_1 = new JLabel("\uC601\uC9C4\uC9C1\uC5C5\uC804\uBB38\uD559\uAD50 \uC8FC\uC18C\uB85D \uAD00\uB9AC \uD504\uB85C\uADF8\uB7A8");
+		panel.add(lblNewLabel_1);
+		lblNewLabel_1.setBackground(Color.BLACK);
+		lblNewLabel_1.setForeground(Color.WHITE);
+		lblNewLabel_1.setFont(new Font("맑은 고딕", Font.BOLD, 23));
+		
+		JComboBox combo_mail = new JComboBox();
+		combo_mail.addItemListener(new ItemListener(){
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				// TODO Auto-generated method stub
+				if(e.getStateChange() == 1) {
+					String txt = (String) e.getItem();
+					txt_email2.setText(txt);
+				}
+			}
+		});
+		combo_mail.setForeground(Color.BLACK);
+		combo_mail.setBackground(Color.WHITE);
+		combo_mail.setModel(new DefaultComboBoxModel(new String[] {"\uC9C1\uC811\uC785\uB825", "naver.com", "gmail.com", "daum.net"}));
+		combo_mail.setToolTipText("\uC9C1\uC811\uC785\uB825");
+		combo_mail.setFont(new Font("맑은 고딕", Font.BOLD, 12));
+		combo_mail.setBounds(383, 194, 101, 19);
+		frame.getContentPane().add(combo_mail);
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(12, 271, 571, 318);
+		frame.getContentPane().add(scrollPane);
+		
+		table = new JTable();
+		table.setForeground(Color.BLACK);
+		String [][] rowdata = {
+				{"\uAC15\uAC10\uCC2C", "25", "\uB0A8\uC790", "\uB300\uAD6C\uC2DC", "010", "gui@naver.com", "1"},
+				{"", null, null, null, null, null, null},
+				{null, null, null, null, null, null, null}
+			};
+			String heading[] = {
+				"\uC774\uB984", "\uB098\uC774", "\uC131\uBCC4", "\uC8FC\uC18C", "\uC5F0\uB77D\uCC98", "\uC774\uBA54\uC77C", "ID"
+			};
+		dtm = new DefaultTableModel(rowdata,heading);
+		table.setModel(dtm);
+		table.getColumnModel().getColumn(0).setPreferredWidth(50);
+		table.getColumnModel().getColumn(0).setMinWidth(50);
+		table.getColumnModel().getColumn(0).setMaxWidth(2007);
+		table.getColumnModel().getColumn(1).setPreferredWidth(40);
+		table.getColumnModel().getColumn(1).setMinWidth(40);
+		table.getColumnModel().getColumn(1).setMaxWidth(40);
+		table.getColumnModel().getColumn(2).setPreferredWidth(50);
+		table.getColumnModel().getColumn(2).setMinWidth(50);
+		table.getColumnModel().getColumn(2).setMaxWidth(50);
+		table.getColumnModel().getColumn(6).setPreferredWidth(40);
+		table.getColumnModel().getColumn(6).setMinWidth(40);
+		table.getColumnModel().getColumn(6).setMaxWidth(40);
+		table.setFont(new Font("맑은 고딕", Font.BOLD, 14));
+		scrollPane.setViewportView(table);
+		
+		JButton btn_cut = new JButton("\uC0AD\uC81C");
+		btn_cut.setFont(new Font("맑은 고딕", Font.BOLD, 20));
+		btn_cut.setBackground(Color.GREEN);
+		btn_cut.setBounds(295, 599, 119, 41);
+		frame.getContentPane().add(btn_cut);
+		btn_cut.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Object o = e.getSource();
+				if(o==btn_cut) {
+					try {
+						delete();
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					try {
+						qry();
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+			}
+		}
+		});
+		JButton btn_edit = new JButton("\uC218\uC815");
+		btn_edit.setFont(new Font("맑은 고딕", Font.BOLD, 20));
+		btn_edit.setBackground(Color.YELLOW);
+		btn_edit.setBounds(156, 599, 119, 41);
+		frame.getContentPane().add(btn_edit);
+		btn_edit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Object o = e.getSource();
+				if(o==btn_edit) {
+				try {
+					update();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				try {
+					qry();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				}
+			}
+		});
+		JButton btn_enter = new JButton("\uC785\uB825");
+		btn_enter.setFont(new Font("맑은 고딕", Font.BOLD, 20));
+		btn_enter.setBackground(Color.PINK);
+		btn_enter.setBounds(12, 599, 119, 41);
+		frame.getContentPane().add(btn_enter);
+		btn_enter.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Object o = e.getSource();
+				if(o==btn_enter){
+					String name = txt_name.getText();
+					String age = txt_age.getText();
+					String addr = txt_addr.getText();
+					phone = txt_num1.getText()+"-"+txt_num2.getText()+"-"+txt_num3.getText();
+					email = txt_email1.getText()+"@"+txt_email2.getText();
+					if(radiobtn_male.isSelected() == true)
+						gender = "남자";
+					else if(radiobtn_female.isSelected() == true)
+						gender = "여자";
+					int name_l = txt_name.getText().length();
+					int age_l = txt_age.getText().length();
+					int addr_l = txt_addr.getText().length();
+					int phone_l = phone.length();
+					int email_l = email.length();
+					if(name_l == 0) {
+						JOptionPane.showMessageDialog(null, "이름을 입력하세요");
+						txt_name.requestFocus();
+					}
+					else if(age_l == 0) {
+						JOptionPane.showMessageDialog(null, "나이를 입력하세요");
+						txt_age.requestFocus();
+					}
+					else if((radiobtn_male.isSelected() || radiobtn_female.isSelected()) == false) {
+						JOptionPane.showMessageDialog(null, "성별을 체크하세요");
+						radiobtn_male.requestFocus();
+					}
+					else if(addr_l == 0) {
+						JOptionPane.showMessageDialog(null, "주소를 입력하세요");
+						txt_addr.requestFocus();
+					}
+					else if(phone_l < 6) {
+						JOptionPane.showMessageDialog(null, "연락처를 입력하세요");
+						txt_num1.requestFocus();
+					}
+					else if(email_l < 5) {
+						JOptionPane.showMessageDialog(null, "e-mail을 입력하세요");
+						txt_email1.requestFocus();
+					}
+					else {
+					Object[] data = {name,age,gender,addr,phone,email};
+					try {
+						regist();
+						init();
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					}
+					try {
+						qry();
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+			}
+			}
+		});
+		JPanel South_panel = new JPanel();
+		South_panel.setBounds(561, 587, -561, 53);
+		frame.getContentPane().add(South_panel);
+		
+		JButton btn_look = new JButton("\uC870\uD68C");
+		btn_look.setBackground(new Color(255, 204, 102));
+		btn_look.setForeground(Color.RED);
+		btn_look.setFont(new Font("맑은 고딕", Font.BOLD, 15));
+		btn_look.setBounds(339, 233, 81, 28);
+		frame.getContentPane().add(btn_look);
+		btn_look.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(e.getSource()==btn_look) {
+					try {
+						sqry();
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+			}
+		});
+		
+		txt_look = new JTextField();
+		txt_look.setColumns(10);
+		txt_look.setBounds(208, 233, 119, 26);
+		frame.getContentPane().add(txt_look);
+		
+		JButton btn_alllook = new JButton("\uC804\uCCB4\uC870\uD68C");
+		btn_alllook.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					qry();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+		btn_alllook.setForeground(Color.RED);
+		btn_alllook.setFont(new Font("맑은 고딕", Font.BOLD, 15));
+		btn_alllook.setBackground(new Color(255, 204, 102));
+		btn_alllook.setBounds(432, 233, 127, 28);
+		frame.getContentPane().add(btn_alllook);
+		
+		combo_look = new JComboBox();
+		combo_look.setModel(new DefaultComboBoxModel(new String[] {"\uAC80\uC0C9\uD560 \uCE74\uD14C\uACE0\uB9AC\uB97C \uC120\uD0DD\uD558\uC138\uC694.", "name", "age", "gender", "phone", "email"}));
+		combo_look.setToolTipText("\uC9C1\uC811\uC785\uB825");
+		combo_look.setForeground(Color.BLACK);
+		combo_look.setFont(new Font("맑은 고딕", Font.BOLD, 14));
+		combo_look.setBackground(Color.WHITE);
+		combo_look.setBounds(54, 233, 142, 25);
+		frame.getContentPane().add(combo_look);
+		
+		JPanel panel_1 = new JPanel();
+		panel_1.setBackground(new Color(102, 204, 204));
+		panel_1.setBounds(33, 65, 526, 158);
+		frame.getContentPane().add(panel_1);
+		
+		JPanel panel_2 = new JPanel();
+		panel_2.setBackground(new Color(102, 153, 204));
+		panel_2.setBounds(32, 225, 527, 46);
+		frame.getContentPane().add(panel_2);
+		Dimension dimen = Toolkit.getDefaultToolkit().getScreenSize();
+		Dimension dimen1=frame.getSize();
+		int xpos = (int) (dimen.getWidth() / 2 - dimen1.getWidth() / 2);
+		int ypos = (int) (dimen.getHeight() / 2 - dimen1.getHeight() / 2);
+		frame.setLocation(xpos, ypos);
+	}
+}
