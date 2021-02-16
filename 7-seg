@@ -10,19 +10,24 @@ void display_7seglend(unsigned char *led, unsigned int number){
 int main(void){
 	DDRA = 0xFF; DDRC=0xff;
 	number=2345;
+	int ch =0;
 	while (1)
 	{
 		int four = number % 10000 / 1000;
 		int three = number % 1000 / 100;
 		int two = number % 100 / 10;
 		int one = number % 10;
-		if(PIND &= 1<<PD6){
+		if((PIND &= 1<<PD6) && (ch == 0)){
+			ch=1;
+		}
+		else if((PIND &= 1<<PD6) && (ch == 1)){
 			number++;
-			_delay_ms(100);
+			_delay_ms(10);
+			ch=0;
 		}
 		if(PIND &= 1<<PD7){
 			number--;
-			_delay_ms(100);
+			_delay_ms(10);
 		}
 		int num[] = {four, three, two, one};
 		for(int i=0; i<4; i++){
