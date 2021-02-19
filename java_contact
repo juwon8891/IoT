@@ -18,11 +18,14 @@ import java.awt.Toolkit;
 
 import javax.swing.JPanel;
 import javax.swing.JComboBox;
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JScrollPane;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.Statement;
 import java.io.StringReader;
 import java.sql.PreparedStatement;
@@ -31,6 +34,9 @@ import java.sql.SQLException;
 import java.awt.event.ActionEvent;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+
+import Pacakage.JTableNO3.myevent;
+
 import javax.swing.JRadioButtonMenuItem;
 
 public class ex2 {
@@ -72,6 +78,7 @@ public class ex2 {
 			}
 		});
 	}
+	
 	static void qry() throws SQLException {
 		int i=0;
 		DB.open();
@@ -276,7 +283,8 @@ public class ex2 {
 		JRadioButton radiobtn_female = new JRadioButton("Female");
 		radiobtn_female.setBounds(458, 78, 80, 23);
 		frame.getContentPane().add(radiobtn_female);
-		
+		ButtonGroup  group = new ButtonGroup();
+		group.add(radiobtn_male);  group.add(radiobtn_female);
 		txt_addr = new JTextField();
 		txt_addr.setColumns(10);
 		txt_addr.setBounds(161, 116, 361, 19);
@@ -506,6 +514,34 @@ public class ex2 {
 			}
 			}
 		});
+		class myevent extends MouseAdapter {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int srow = table.getSelectedRow();
+				String name = (String) table.getValueAt(srow, 0);
+				String age = (String) table.getValueAt(srow, 1);
+				String gen = (String) table.getValueAt(srow, 2);
+				String addr = (String) table.getValueAt(srow, 3);
+				String phone = (String) table.getValueAt(srow, 4);
+				String mail = (String) table.getValueAt(srow, 5);
+				 int mlen = phone.indexOf("-");
+				 int llen = phone.lastIndexOf("-");
+				String p1 = phone.substring(0,mlen); // 0번째 문자부터 3번째 문자 "전"까지 뽑기
+			    String p2 = phone.substring(mlen+1,llen); 
+			    String p3 = phone.substring(llen+1);    
+			    int len = mail.indexOf("@");
+			    String m1 = mail.substring(0,len); 
+			    String m2 = mail.substring(len+1); 
+			    if(gen.equals("남자"))
+					radiobtn_male.setSelected(true);
+				else  if(gen.equals("여자"))
+					radiobtn_female.setSelected(true);
+				txt_name.setText(name);txt_age.setText(age);
+				txt_addr.setText(addr);
+				txt_num1.setText(p1); txt_num2.setText(p2); txt_num3.setText(p3);
+				txt_email1.setText(m1); txt_email2.setText(m2);
+			}
+		}
 		JPanel South_panel = new JPanel();
 		South_panel.setBounds(561, 587, -561, 53);
 		frame.getContentPane().add(South_panel);
@@ -516,6 +552,7 @@ public class ex2 {
 		btn_look.setFont(new Font("맑은 고딕", Font.BOLD, 15));
 		btn_look.setBounds(339, 233, 81, 28);
 		frame.getContentPane().add(btn_look);
+		table.addMouseListener(new myevent());
 		btn_look.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(e.getSource()==btn_look) {
